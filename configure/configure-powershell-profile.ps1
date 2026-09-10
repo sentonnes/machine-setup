@@ -30,9 +30,28 @@ Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
 
 # --- Modules ---
-Import-Module posh-git -ErrorAction SilentlyContinue
-Import-Module Terminal-Icons -ErrorAction SilentlyContinue
-Import-Module PSFzf -ErrorAction SilentlyContinue
+# --- oh-my-posh (cached) ---
+$ompCache = "$HOME\.cache\omp-jandedobbeleer.ps1"
+if (-not (Test-Path $ompCache)) {
+    New-Item -ItemType Directory -Path (Split-Path $ompCache) -Force | Out-Null
+    oh-my-posh init pwsh --config "jandedobbeleer" | Out-File $ompCache -Encoding utf8
+}
+. $ompCache
+
+# --- kubectl completion (cached) ---
+$kubectlCache = "$HOME\.cache\kubectl-completion.ps1"
+if ((Get-Command kubectl -ErrorAction SilentlyContinue) -and -not (Test-Path $kubectlCache)) {
+    kubectl completion powershell | Out-File $kubectlCache -Encoding utf8
+}
+if (Test-Path $kubectlCache) { . $kubectlCache }
+
+# --- gh completion (cached) ---
+$ghCache = "$HOME\.cache\gh-completion.ps1"
+if ((Get-Command gh -ErrorAction SilentlyContinue) -and -not (Test-Path $ghCache)) {
+    gh completion -s powershell | Out-File $ghCache -Encoding utf8
+}
+if (Test-Path $ghCache) { . $ghCache }
+
 if (Get-Module -Name PSFzf) {
     Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 }

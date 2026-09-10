@@ -11,7 +11,7 @@ $Packages = @(
     @{ Id = 'BurntSushi.ripgrep.MSVC';       Name = 'ripgrep (Telescope live grep)'; Cmd = 'rg' }
     @{ Id = 'sharkdp.fd';                    Name = 'fd (Telescope find files)';     Cmd = 'fd' }
     @{ Id = 'junegunn.fzf';                  Name = 'fzf (fallback fuzzy finder)';   Cmd = 'fzf' }
-    @{ Id = 'zig.zig';                       Name = 'Zig (C compiler for treesitter parsers)'; Cmd = 'zig' }
+    @{ Id = 'BrechtSanders.WinLibs.POSIX.UCRT';                       Name = 'C compiler for treesitter parsers'; Cmd = 'gcc' }
     @{ Id = 'gerardog.gsudo';                Name = 'gsudo (optional, elevation helper)'; Cmd = 'gsudo'; Optional = $true }
 
     # Programming languages / runtimes
@@ -48,7 +48,6 @@ $Packages = @(
     @{ Id = 'GitHub.CopilotApp';             Name = 'GitHub Copilot App' }  # GUI app, no CLI/Cmd to check
 
     # Utilities
-    @{ Id = 'Notepad++.Notepad++';           Name = 'Notepad++' }  # GUI app, no CLI/Cmd to check
     @{ Id = 'NickeManarin.ScreenToGif';      Name = 'ScreenToGif' }  # GUI app, no CLI/Cmd to check
     @{ Id = 'liule.Snipaste';                Name = 'Snipaste' }  # GUI app, no CLI/Cmd to check
     @{ Id = '0-don.clippy';                  Name = 'Clippy' }  # GUI app, no CLI/Cmd to check
