@@ -26,12 +26,12 @@ $ErrorActionPreference = 'Stop'
 
 # ===========================================================================
 # CONFIG — package lists and their install functions live in
-# packages/winget.ps1 and packages/ps-modules.ps1. Edit those files to
+# sources/winget.ps1 and sources/ps-modules.ps1. Edit those files to
 # add/remove what gets installed or how; this file shouldn't need to change.
 # ===========================================================================
 
-. "$PSScriptRoot\packages\winget.ps1"
-. "$PSScriptRoot\packages\ps-modules.ps1"
+. "$PSScriptRoot\sources\winget.ps1"
+. "$PSScriptRoot\sources\ps-modules.ps1"
 
 # ===========================================================================
 # MAIN
