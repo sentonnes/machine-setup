@@ -25,94 +25,13 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\configure\_common.ps1"
 
 # ===========================================================================
-# CONFIG — defined in packages/winget.ps1 and packages/ps-modules.ps1.
-# Edit those files to add/remove what gets installed; this file shouldn't
-# need to change.
+# CONFIG — package lists and their install functions live in
+# packages/winget.ps1 and packages/ps-modules.ps1. Edit those files to
+# add/remove what gets installed or how; this file shouldn't need to change.
 # ===========================================================================
 
 . "$PSScriptRoot\packages\winget.ps1"
 . "$PSScriptRoot\packages\ps-modules.ps1"
-
-# ===========================================================================
-# FUNCTIONS
-# ===========================================================================
-
-function Test-Prerequisites {
-    Write-Step "Checking prerequisites"
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-        throw "winget not found. Install 'App Installer' from the Microsoft Store first."
-    }
-    Write-Ok "winget found"
-}
-
-function Install-WingetPackages {
-    param([array]$PackageList)
-
-    Write-Step "Installing packages via winget"
-    foreach ($pkg in $PackageList) {
-        $installed = winget list --id $pkg.Id --exact --accept-source-agreements 2>$null | Select-String $pkg.Id
-        if ($installed) {
-            Write-Skip "$($pkg.Name) already installed"
-            continue
-        }
-
-        Write-Host "  installing $($pkg.Name)..."
-        try {
-            $installArgs = @('install', '--id', $pkg.Id, '--exact', '--silent',
-                              '--accept-package-agreements', '--accept-source-agreements')
-            if ($pkg.Version) {
-                $installArgs += @('--version', $pkg.Version)
-            }
-            winget @installArgs
-            Write-Ok "$($pkg.Name) installed"
-        } catch {
-            if ($pkg.Optional) {
-                Write-Warn "optional package $($pkg.Name) failed, continuing"
-            } else {
-                throw "Failed to install required package $($pkg.Name): $_"
-            }
-        }
-    }
-}
-
-function Install-PSModules {
-    param([array]$ModuleList)
-
-    Write-Step "Installing PowerShell modules"
-    foreach ($mod in $ModuleList) {
-        $checkName = if ($mod.CheckModule) { $mod.CheckModule } else { $mod.Name }
-        if (Get-Module -ListAvailable -Name $checkName -ErrorAction SilentlyContinue) {
-            Write-Skip "$($mod.Name) already installed"
-            continue
-        }
-
-        Write-Host "  installing $($mod.Name)..."
-        try {
-            Install-Module -Name $mod.Name -Scope CurrentUser -Repository PSGallery -Force
-            Write-Ok "$($mod.Name) installed"
-        } catch {
-            throw "Failed to install PowerShell module $($mod.Name): $_"
-        }
-    }
-}
-
-function Update-SessionPath {
-    param([array]$PackageList)
-
-    Write-Step "Refreshing PATH for this session"
-    $env:Path = [System.Environment]::GetEnvironmentVariable('Path','Machine') + ';' + `
-                [System.Environment]::GetEnvironmentVariable('Path','User')
-
-    $cmdsToCheck = $PackageList | Where-Object { $_.Cmd } | Select-Object -ExpandProperty Cmd -Unique
-
-    foreach ($cmd in $cmdsToCheck) {
-        if (Get-Command $cmd -ErrorAction SilentlyContinue) {
-            Write-Ok "$cmd on PATH"
-        } else {
-            Write-Warn "$cmd not on PATH yet — you may need to restart your terminal"
-        }
-    }
-}
 
 # ===========================================================================
 # MAIN

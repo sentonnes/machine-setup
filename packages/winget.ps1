@@ -1,8 +1,65 @@
 <#
     Data file, dot-sourced by setup.ps1. Defines $WingetPackages — the winget
-    packages to install. Edit this file to add/remove software; setup.ps1
-    itself should not need to change.
+    packages to install — plus the functions used to install them and verify
+    winget itself is present. Edit the package list to add/remove software;
+    setup.ps1 itself should not need to change.
 #>
+
+function Test-Prerequisites {
+    Write-Step "Checking prerequisites"
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        throw "winget not found. Install 'App Installer' from the Microsoft Store first."
+    }
+    Write-Ok "winget found"
+}
+
+function Install-WingetPackages {
+    param([array]$PackageList)
+
+    Write-Step "Installing packages via winget"
+    foreach ($pkg in $PackageList) {
+        $installed = winget list --id $pkg.Id --exact --accept-source-agreements 2>$null | Select-String $pkg.Id
+        if ($installed) {
+            Write-Skip "$($pkg.Name) already installed"
+            continue
+        }
+
+        Write-Host "  installing $($pkg.Name)..."
+        try {
+            $installArgs = @('install', '--id', $pkg.Id, '--exact', '--silent',
+                              '--accept-package-agreements', '--accept-source-agreements')
+            if ($pkg.Version) {
+                $installArgs += @('--version', $pkg.Version)
+            }
+            winget @installArgs
+            Write-Ok "$($pkg.Name) installed"
+        } catch {
+            if ($pkg.Optional) {
+                Write-Warn "optional package $($pkg.Name) failed, continuing"
+            } else {
+                throw "Failed to install required package $($pkg.Name): $_"
+            }
+        }
+    }
+}
+
+function Update-SessionPath {
+    param([array]$PackageList)
+
+    Write-Step "Refreshing PATH for this session"
+    $env:Path = [System.Environment]::GetEnvironmentVariable('Path','Machine') + ';' + `
+                [System.Environment]::GetEnvironmentVariable('Path','User')
+
+    $cmdsToCheck = $PackageList | Where-Object { $_.Cmd } | Select-Object -ExpandProperty Cmd -Unique
+
+    foreach ($cmd in $cmdsToCheck) {
+        if (Get-Command $cmd -ErrorAction SilentlyContinue) {
+            Write-Ok "$cmd on PATH"
+        } else {
+            Write-Warn "$cmd not on PATH yet — you may need to restart your terminal"
+        }
+    }
+}
 
 $WingetPackages = @(
     # Editor / core
@@ -52,3 +109,4 @@ $WingetPackages = @(
     @{ Id = 'liule.Snipaste'; Name = 'Snipaste' }  # GUI app, no CLI/Cmd to check
     @{ Id = 'Ditto.Ditto'; Name = 'Ditto' }  # GUI app, no CLI/Cmd to check
 )
+
