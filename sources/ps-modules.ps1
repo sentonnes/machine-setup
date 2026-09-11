@@ -31,6 +31,6 @@ $PSModules = @(
     @{ Name = 'posh-git';       CheckModule = 'posh-git' }
     @{ Name = 'Terminal-Icons'; CheckModule = 'Terminal-Icons' }
     @{ Name = 'PSFzf';          CheckModule = 'PSFzf' }
-    # Add more PowerShell Gallery modules here, e.g.:
-    # @{ Name = 'Pester';      CheckModule = 'Pester' }
+    @{ Name = 'Pester';         CheckModule = 'Pester' }
+    @{ Name = 'Maester';        CheckModule = 'Maester' }
 )
