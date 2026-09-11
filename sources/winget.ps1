@@ -103,9 +103,4 @@ $WingetPackages = @(
     # GitHub
     @{ Id = 'GitHub.cli'; Name = 'GitHub CLI'; Cmd = 'gh' }
     @{ Id = 'GitHub.CopilotApp'; Name = 'GitHub Copilot App' }  # GUI app, no CLI/Cmd to check
-
-    # Utilities
-    @{ Id = 'NickeManarin.ScreenToGif'; Name = 'ScreenToGif' }  # GUI app, no CLI/Cmd to check
-    @{ Id = 'liule.Snipaste'; Name = 'Snipaste' }  # GUI app, no CLI/Cmd to check
-    @{ Id = 'Ditto.Ditto'; Name = 'Ditto' }  # GUI app, no CLI/Cmd to check
 )
