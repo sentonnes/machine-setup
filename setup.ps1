@@ -25,12 +25,12 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\configure\_common.ps1"
 
 # ===========================================================================
-# CONFIG — defined in packages/packages.ps1 and packages/ps-modules.ps1.
+# CONFIG — defined in packages/winget.ps1 and packages/ps-modules.ps1.
 # Edit those files to add/remove what gets installed; this file shouldn't
 # need to change.
 # ===========================================================================
 
-. "$PSScriptRoot\packages\packages.ps1"
+. "$PSScriptRoot\packages\winget.ps1"
 . "$PSScriptRoot\packages\ps-modules.ps1"
 
 # ===========================================================================
@@ -119,9 +119,9 @@ function Update-SessionPath {
 # ===========================================================================
 
 Test-Prerequisites
-Install-WingetPackages -PackageList $Packages
+Install-WingetPackages -PackageList $WingetPackages
 Install-PSModules -ModuleList $PSModules
-Update-SessionPath -PackageList $Packages
+Update-SessionPath -PackageList $WingetPackages
 
 if ($SkipConfigure) {
     Write-Step "Done (install only)"

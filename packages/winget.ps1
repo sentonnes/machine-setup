@@ -1,10 +1,10 @@
 <#
-    Data file, dot-sourced by setup.ps1. Defines $Packages — the winget
+    Data file, dot-sourced by setup.ps1. Defines $WingetPackages — the winget
     packages to install. Edit this file to add/remove software; setup.ps1
     itself should not need to change.
 #>
 
-$Packages = @(
+$WingetPackages = @(
     # Editor / core
     @{ Id = 'Neovim.Neovim'; Name = 'Neovim'; Cmd = 'nvim' }
     @{ Id = 'Git.Git'; Name = 'Git'; Cmd = 'git' }
@@ -52,4 +52,3 @@ $Packages = @(
     @{ Id = 'liule.Snipaste'; Name = 'Snipaste' }  # GUI app, no CLI/Cmd to check
     @{ Id = 'Ditto.Ditto'; Name = 'Ditto' }  # GUI app, no CLI/Cmd to check
 )
-
