@@ -1,16 +1,30 @@
 <#
 .SYNOPSIS
     Writes an opinionated, managed block into $PROFILE: PSReadLine tuning,
-    handy aliases, module imports (posh-git, Terminal-Icons, PSFzf), and
-    CLI tab-completion registration (kubectl, gh). Idempotent — the managed
-    block is delimited by markers and fully replaced on each run; anything
-    you add to $PROFILE outside the markers is left untouched.
+    handy aliases, module imports (posh-git, Terminal-Icons, PSFzf),
+    oh-my-posh init, and CLI tab-completion registration (kubectl, gh).
+    Idempotent — the managed block is delimited by markers and fully
+    replaced on each run; anything you add to $PROFILE outside the markers
+    is left untouched.
+
+.PARAMETER Theme
+    Oh My Posh theme name (without .omp.json) from the built-in theme set,
+    or an absolute path to a custom .omp.json.
+    Browse themes: https://ohmyposh.dev/docs/themes
 #>
+
+param(
+    [string]$Theme = 'jandedobbeleer'
+)
 
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_common.ps1"
 
 Write-Step "Configuring PowerShell profile"
+
+if (-not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
+    Write-Warn "oh-my-posh not found on PATH — run setup.ps1 first (installs via winget). Profile will still be written, but oh-my-posh init will fail until it's installed."
+}
 
 $StartMarker = '# >>> managed: do not edit between markers >>>'
 $EndMarker   = '# <<< managed <<<'
@@ -21,8 +35,8 @@ if ($missingModules) {
     Write-Warn "module(s) not installed: $($missingModules -join ', ') — run setup.ps1 first. Profile will still be written, but Import-Module for these will fail until installed."
 }
 
-$managedBlock = @"
-$StartMarker
+$managedBlock = @'
+# >>> managed: do not edit between markers >>>
 
 # Toggle without editing this file: $env:PROFILE_TIMING = $true  (set before opening a new shell)
 $TimingEnabled = $false
@@ -72,7 +86,7 @@ Measure-Section 'PSFzf' {
 
 # --- oh-my-posh (cached) ---
 Measure-Section 'oh-my-posh init' {
-    Invoke-CachedInit -Path "$CachePath\omp-jandedobbeleer.ps1" -Expression 'oh-my-posh init pwsh --config "jandedobbeleer"'
+    Invoke-CachedInit -Path "$CachePath\omp-__THEME__.ps1" -Expression 'oh-my-posh init pwsh --config "__THEME__"'
 }
 
 # --- kubectl completion (cached) ---
@@ -99,8 +113,10 @@ if ($TimingEnabled) {
     $Timings.GetEnumerator() | Sort-Object Value -Descending | Format-Table Name, @{L='ms';E={$_.Value}} -AutoSize
 }
 
-$EndMarker
-"@
+# <<< managed <<<
+'@
+
+$managedBlock = $managedBlock.Replace('__THEME__', $Theme)
 
 if (-not (Test-Path $PROFILE)) {
     New-Item -ItemType File -Path $PROFILE -Force | Out-Null

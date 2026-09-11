@@ -61,16 +61,19 @@ dot-sourced from `setup.ps1`.
 
 `configure.ps1` auto-discovers every `configure/configure-*.ps1` file and
 runs it — add a new file and it's picked up automatically, no edits needed
-to the orchestrator. `configure-nvim.ps1` and `configure-ohmyposh.ps1` always
-run first (order-sensitive); everything else runs after, alphabetically.
+to the orchestrator. `configure-nvim.ps1` always runs first (order-sensitive,
+since other scripts may depend on nvim's config being cloned); everything
+else runs after, alphabetically.
 
 Each script is independently re-runnable and responsible for its own
 configuration values (repo URLs, themes, etc) via parameter defaults.
 
-Implemented so far: `configure-nvim`, `configure-ohmyposh`, `configure-git`,
-`configure-gh`, `configure-az`, `configure-helm`, `configure-terraform`,
-`configure-terminal`, `configure-powershell-profile`, `configure-dotnet`,
-`configure-dev-tools`. The rest are stubs (`Write-Skip "not yet implemented"`)
+Implemented so far: `configure-nvim`, `configure-git`, `configure-gh`,
+`configure-az`, `configure-az-module`, `configure-helm`, `configure-terraform`,
+`configure-terminal`, `configure-powershell-profile` (also owns oh-my-posh
+init — see below), `configure-dotnet`, `configure-dev-tools`,
+`configure-docker`, `configure-copilot-app`. The rest are stubs
+(`Write-Skip "not yet implemented"`)
 — TODO ideas are documented in each file's header comment.
 
 ## Manual steps

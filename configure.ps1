@@ -28,7 +28,7 @@ $ConfigureDir = Join-Path $PSScriptRoot 'configure'
 
 # Scripts that need to run before the rest (order-sensitive), in order.
 # Everything else discovered in the folder runs after these, alphabetically.
-$PriorityOrder = @('configure-nvim.ps1', 'configure-ohmyposh.ps1')
+$PriorityOrder = @('configure-nvim.ps1')
 
 $allScripts = Get-ChildItem -Path $ConfigureDir -Filter 'configure-*.ps1' | Sort-Object Name
 $priorityScripts = $PriorityOrder | ForEach-Object {
