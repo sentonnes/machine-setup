@@ -39,5 +39,5 @@ if (Test-Path $Sqlite3Dll) {
     Write-Host "  Neovim's sqlite.lua-based plugins need the DLL to work. To fix:"
     Write-Host "    1. Download the precompiled binaries zip (sqlite-dll-win-x64-*.zip) from https://www.sqlite.org/download.html"
     Write-Host "    2. Extract sqlite3.dll into $DevToolsDir"
-    3. Point vim.g.sqlite_clib_path at $Sqlite3Dll in your nvim config
+    Write-Host "    3. Point vim.g.sqlite_clib_path at $Sqlite3Dll in your nvim config"
 }
