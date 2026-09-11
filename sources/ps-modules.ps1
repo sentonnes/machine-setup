@@ -27,10 +27,16 @@ function Install-PSModules {
 }
 
 $PSModules = @(
-    @{ Name = 'Az';             CheckModule = 'Az.Accounts' }
-    @{ Name = 'posh-git';       CheckModule = 'posh-git' }
-    @{ Name = 'Terminal-Icons'; CheckModule = 'Terminal-Icons' }
-    @{ Name = 'PSFzf';          CheckModule = 'PSFzf' }
-    @{ Name = 'Pester';         CheckModule = 'Pester' }
-    @{ Name = 'Maester';        CheckModule = 'Maester' }
+    @{ Name = 'Az';               CheckModule = 'Az.Accounts' }
+    @{ Name = 'posh-git';         CheckModule = 'posh-git' }
+    @{ Name = 'Terminal-Icons';   CheckModule = 'Terminal-Icons' }
+    @{ Name = 'PSFzf';            CheckModule = 'PSFzf' }
+    @{ Name = 'Pester';           CheckModule = 'Pester' }
+    @{ Name = 'Maester';          CheckModule = 'Maester' }
+    @{ Name = 'Microsoft.Graph';  CheckModule = 'Microsoft.Graph.Authentication' }
+    @{ Name = 'PSScriptAnalyzer'; CheckModule = 'PSScriptAnalyzer' }
+    @{ Name = 'Az.ResourceGraph'; CheckModule = 'Az.ResourceGraph' }
+    @{ Name = 'platyPS';          CheckModule = 'platyPS' }
+#    @{ Name = 'Microsoft.PowerShell.SecretManagement'; CheckModule = 'Microsoft.PowerShell.SecretManagement' }
+#    @{ Name = 'Microsoft.PowerShell.SecretStore';      CheckModule = 'Microsoft.PowerShell.SecretStore' }
 )
