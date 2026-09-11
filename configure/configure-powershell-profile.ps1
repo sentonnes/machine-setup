@@ -126,10 +126,10 @@ if (-not (Test-Path $PROFILE)) {
 $existingContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($existingContent)) { $existingContent = '' }
 
-$pattern = [regex]::Escape($StartMarker) + '.*?' + [regex]::Escape($EndMarker)
+$pattern = '(?s)' + [regex]::Escape($StartMarker) + '.*?' + [regex]::Escape($EndMarker)
 
 if ($existingContent -match $pattern) {
-    $updatedContent = [regex]::Replace($existingContent, $pattern, { $managedBlock }, 'Singleline')
+    $updatedContent = [regex]::Replace($existingContent, $pattern, { $managedBlock })
     if ($updatedContent -eq $existingContent) {
         Write-Skip "managed profile block already up to date"
     } else {
