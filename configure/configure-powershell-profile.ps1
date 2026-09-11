@@ -12,8 +12,8 @@ $ErrorActionPreference = 'Stop'
 
 Write-Step "Configuring PowerShell profile"
 
-$StartMarker = '# >>> dotfiles-managed: do not edit between markers >>>'
-$EndMarker   = '# <<< dotfiles-managed <<<'
+$StartMarker = '# >>> managed: do not edit between markers >>>'
+$EndMarker   = '# <<< managed <<<'
 
 $requiredModules = @('posh-git', 'Terminal-Icons', 'PSFzf')
 $missingModules = $requiredModules | Where-Object { -not (Get-Module -ListAvailable -Name $_) }
@@ -24,36 +24,69 @@ if ($missingModules) {
 $managedBlock = @"
 $StartMarker
 
+# Toggle without editing this file: $env:PROFILE_TIMING = $true  (set before opening a new shell)
+$TimingEnabled = $false
+$Timings = [ordered]@{}
+
+function Measure-Section {
+    param([string]$Name, [scriptblock]$Body)
+    if ($TimingEnabled) {
+        $ms = (Measure-Command { & $Body }).TotalMilliseconds
+        $Timings[$Name] = [math]::Round($ms, 1)
+    } else {
+        & $Body
+    }
+}
+
+$CachePath = "$HOME\.cache"
+
+function Invoke-CachedInit {
+    param([string]$Path, [string]$Expression)
+    if (-not (Test-Path $Path)) {
+        New-Item -ItemType Directory -Path (Split-Path $Path) -Force | Out-Null
+        Invoke-Expression $Expression | Out-File $Path -Encoding utf8
+    }
+    . $Path
+}
+
 # --- PSReadLine ---
-Set-PSReadLineOption -PredictionSource History -PredictionViewStyle ListView -HistorySearchCursorMovesToEnd
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Measure-Section 'PSReadLine' {
+    Set-PSReadLineOption -PredictionSource History -PredictionViewStyle ListView -HistorySearchCursorMovesToEnd
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+}
 
 # --- Modules ---
-# --- oh-my-posh (cached) ---
-$ompCache = "$HOME\.cache\omp-jandedobbeleer.ps1"
-if (-not (Test-Path $ompCache)) {
-    New-Item -ItemType Directory -Path (Split-Path $ompCache) -Force | Out-Null
-    oh-my-posh init pwsh --config "jandedobbeleer" | Out-File $ompCache -Encoding utf8
+Measure-Section 'posh-git' {
+    Import-Module posh-git -ErrorAction SilentlyContinue
 }
-. $ompCache
+Measure-Section 'Terminal-Icons' {
+    Import-Module Terminal-Icons -ErrorAction SilentlyContinue
+}
+Measure-Section 'PSFzf' {
+    Import-Module PSFzf -ErrorAction SilentlyContinue
+    if (Get-Module -Name PSFzf) {
+        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+    }
+}
+
+# --- oh-my-posh (cached) ---
+Measure-Section 'oh-my-posh init' {
+    Invoke-CachedInit -Path "$CachePath\omp-jandedobbeleer.ps1" -Expression 'oh-my-posh init pwsh --config "jandedobbeleer"'
+}
 
 # --- kubectl completion (cached) ---
-$kubectlCache = "$HOME\.cache\kubectl-completion.ps1"
-if ((Get-Command kubectl -ErrorAction SilentlyContinue) -and -not (Test-Path $kubectlCache)) {
-    kubectl completion powershell | Out-File $kubectlCache -Encoding utf8
+Measure-Section 'kubectl completion' {
+    if (Get-Command kubectl -ErrorAction SilentlyContinue) {
+        Invoke-CachedInit -Path "$CachePath\kubectl-completion.ps1" -Expression 'kubectl completion powershell'
+    }
 }
-if (Test-Path $kubectlCache) { . $kubectlCache }
 
 # --- gh completion (cached) ---
-$ghCache = "$HOME\.cache\gh-completion.ps1"
-if ((Get-Command gh -ErrorAction SilentlyContinue) -and -not (Test-Path $ghCache)) {
-    gh completion -s powershell | Out-File $ghCache -Encoding utf8
-}
-if (Test-Path $ghCache) { . $ghCache }
-
-if (Get-Module -Name PSFzf) {
-    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+Measure-Section 'gh completion' {
+    if (Get-Command gh -ErrorAction SilentlyContinue) {
+        Invoke-CachedInit -Path "$CachePath\gh-completion.ps1" -Expression 'gh completion -s powershell'
+    }
 }
 
 # --- Aliases ---
@@ -61,12 +94,9 @@ function ll { Get-ChildItem @args }
 function gs { git status @args }
 Set-Alias -Name k -Value kubectl -ErrorAction SilentlyContinue
 
-# --- CLI tab completion ---
-if (Get-Command kubectl -ErrorAction SilentlyContinue) {
-    kubectl completion powershell | Out-String | Invoke-Expression
-}
-if (Get-Command gh -ErrorAction SilentlyContinue) {
-    gh completion -s powershell | Out-String | Invoke-Expression
+if ($TimingEnabled) {
+    Write-Host "`n--- profile timing ($([math]::Round(($Timings.Values | Measure-Object -Sum).Sum, 1))ms total) ---" -ForegroundColor Cyan
+    $Timings.GetEnumerator() | Sort-Object Value -Descending | Format-Table Name, @{L='ms';E={$_.Value}} -AutoSize
 }
 
 $EndMarker
