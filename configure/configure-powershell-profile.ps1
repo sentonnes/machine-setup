@@ -106,6 +106,7 @@ Measure-Section 'gh completion' {
 # --- Aliases ---
 function ll { Get-ChildItem @args }
 function gs { git status @args }
+function slg { Set-Location -Path "C:\git\" }
 Set-Alias -Name k -Value kubectl -ErrorAction SilentlyContinue
 
 if ($TimingEnabled) {
