@@ -17,8 +17,8 @@
 #>
 
 param(
-    [switch]$Force,
-    [switch]$SkipConfigure
+  [switch]$Force,
+  [switch]$SkipConfigure
 )
 
 $ErrorActionPreference = 'Stop'
@@ -32,6 +32,7 @@ $ErrorActionPreference = 'Stop'
 
 . "$PSScriptRoot\sources\winget.ps1"
 . "$PSScriptRoot\sources\ps-modules.ps1"
+. "$PSScriptRoot\sources\npm.ps1"
 
 # ===========================================================================
 # MAIN
@@ -41,11 +42,14 @@ Test-Prerequisites
 Install-WingetPackages -PackageList $WingetPackages
 Install-PSModules -ModuleList $PSModules
 Update-SessionPath -PackageList $WingetPackages
+Install-NpmPackages -PackageList $NpmPackages
 
-if ($SkipConfigure) {
-    Write-Step "Done (install only)"
-    Write-Warn "-SkipConfigure set — configure.ps1 was not run"
-} else {
-    Write-Step "Handing off to configure.ps1"
-    & "$PSScriptRoot\configure.ps1" -Force:$Force
+if ($SkipConfigure)
+{
+  Write-Step "Done (install only)"
+  Write-Warn "-SkipConfigure set — configure.ps1 was not run"
+} else
+{
+  Write-Step "Handing off to configure.ps1"
+  & "$PSScriptRoot\configure.ps1" -Force:$Force
 }
