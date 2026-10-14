@@ -86,7 +86,7 @@ Measure-Section 'PSFzf' {
 
 # --- oh-my-posh (cached) ---
 Measure-Section 'oh-my-posh init' {
-    Invoke-CachedInit -Path "$CachePath\omp-__THEME__.ps1" -Expression 'oh-my-posh init pwsh --config "__THEME__"'
+    Invoke-CachedInit -Path "$CachePath\omp-__THEME_SAFE__.ps1" -Expression 'oh-my-posh init pwsh --config "__THEME__"'
 }
 
 # --- kubectl completion (cached) ---
@@ -117,7 +117,8 @@ if ($TimingEnabled) {
 # <<< managed <<<
 '@
 
-$managedBlock = $managedBlock.Replace('__THEME__', $Theme)
+$ThemeSafe = ($Theme -replace '[^a-zA-Z0-9]', '_')
+$managedBlock = $managedBlock.Replace('__THEME_SAFE__', $ThemeSafe).Replace('__THEME__', $Theme)
 
 if (-not (Test-Path $PROFILE)) {
     New-Item -ItemType File -Path $PROFILE -Force | Out-Null
